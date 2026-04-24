@@ -2,7 +2,6 @@
 
 import streamlit as st
 import plotly.graph_objects as go
-import plotly.express as px
 from utils.supabase_client import get_expenses, get_spending_summary
 from utils.session import get_user_id
 from utils.categories import get_icon, get_color, get_bg
@@ -21,7 +20,7 @@ def render():
     with st.spinner("Loading your data…"):
         expenses = get_expenses(user_id)
 
-    summary  = get_spending_summary(expenses)
+    summary = get_spending_summary(expenses)
 
     # ── KPI Cards ────────────────────────────────────────────────────────────
     c1, c2, c3, c4 = st.columns(4)
@@ -106,46 +105,44 @@ def _donut_chart(by_category: dict):
     )])
 
     total = sum(values)
+
     fig.add_annotation(
         text=f"₹{total:,.0f}",
         x=0.5, y=0.54,
-        font=dict(family="Syne", size=20, color="#eef2f7"),
+        font=dict(size=20),
         showarrow=False,
     )
+
     fig.add_annotation(
         text="total",
         x=0.5, y=0.44,
-        font=dict(family="DM Sans", size=12, color="#8b93a7"),
+        font=dict(size=12),
         showarrow=False,
     )
 
     fig.update_layout(
         paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
         margin=dict(t=0, b=0, l=0, r=0),
         height=280,
-        showlegend=True,
-        legend=dict(
-            orientation="v",
-            yanchor="middle",
-            y=0.5,
-            xanchor="left",
-            x=1.02,
-            font=dict(family="DM Sans", size=12, color="#8b93a7"),
-            bgcolor="rgba(0,0,0,0)",
-        ),
     )
+
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
 
 def _recent_transactions(expenses: list):
+    if not expenses:
+        st.info("No recent transactions.")
+        return
+
     rows = ""
     for e in expenses:
         icon = get_icon(e["category"])
         color = get_color(e["category"])
-        bg    = get_bg(e["category"])
-        date  = str(e.get("created_at", ""))[:10] if e.get("created_at") else ""
-        desc  = e.get("description", "—")[:28]
+        bg = get_bg(e["category"])
+
+        date = str(e.get("created_at", ""))[:10] if e.get("created_at") else ""
+        desc = e.get("description", "—")[:28]
+
         rows += f"""
         <div class="txn-row">
             <div class="txn-icon" style="background:{bg}; color:{color}">{icon}</div>
@@ -157,13 +154,16 @@ def _recent_transactions(expenses: list):
                 <div class="txn-amount">-₹{e['amount']:,.2f}</div>
                 <div class="txn-date">{date}</div>
             </div>
-        </div>"""
+        </div>
+        """
 
+    # ✅ FIXED HERE (THIS WAS YOUR ISSUE)
     st.markdown(f"""
     <div style="background:var(--bg-card); border:1px solid var(--border);
                 border-radius:var(--radius-lg); padding:4px 20px;">
         {rows}
-    </div>""", unsafe_allow_html=True)
+    </div>
+    """, unsafe_allow_html=True)
 
 
 def _empty_state():
@@ -171,9 +171,10 @@ def _empty_state():
     <div style="text-align:center; padding:60px 20px; background:var(--bg-card);
                 border:1px solid var(--border); border-radius:var(--radius-lg);">
         <div style="font-size:48px; margin-bottom:16px;">📭</div>
-        <div style="font-family:var(--font-display); font-size:20px; font-weight:700;
-                    color:var(--text-primary); margin-bottom:8px;">No expenses yet</div>
-        <div style="color:var(--text-secondary); font-size:14px;">
+        <div style="font-size:20px; font-weight:700;
+                    margin-bottom:8px;">No expenses yet</div>
+        <div style="font-size:14px;">
             Add your first expense to start tracking your spending
         </div>
-    </div>""", unsafe_allow_html=True)
+    </div>
+    """, unsafe_allow_html=True)
