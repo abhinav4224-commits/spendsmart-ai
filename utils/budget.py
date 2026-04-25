@@ -1,8 +1,8 @@
-from utils.supabase_client import get_authed_client
+import utils.supabase_client as supabase_client
 
 
 def get_budget(user_id):
-    client = get_authed_client()
+    client = supabase_client.get_authed_client()
 
     res = (
         client.table("user_budget")
@@ -15,7 +15,7 @@ def get_budget(user_id):
 
 
 def save_budget(user_id, income, limit):
-    client = get_authed_client()
+    client = supabase_client.get_authed_client()
 
     existing = get_budget(user_id)
 
