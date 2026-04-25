@@ -1,7 +1,7 @@
 import streamlit as st
 import utils.supabase_client as supabase_client
+import utils.categories as categories
 from utils.session import get_user_id
-from utils.categories import get_categories
 
 
 def render():
@@ -14,12 +14,14 @@ def render():
     </div>
     """, unsafe_allow_html=True)
 
-    # ── INPUT FORM ─────────────────────────────────────
+    # ── FORM ───────────────────────────────────────────
     with st.form("expense_form"):
         amount = st.number_input("Amount (₹)", min_value=0.0, step=1.0)
 
-        categories = get_categories()
-        category = st.selectbox("Category", categories)
+        category = st.selectbox(
+            "Category",
+            categories.get_categories()
+        )
 
         description = st.text_input("Description")
 
@@ -34,7 +36,6 @@ def render():
                 st.error("Please select a category")
                 return
 
-            # ── SAVE TO DATABASE ───────────────────────
             res = supabase_client.add_expense(
                 user_id,
                 amount,
