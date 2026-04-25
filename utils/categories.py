@@ -49,11 +49,18 @@ CATEGORY_BG: dict[str, str] = {
 }
 
 
+# ✅ ADD THIS FUNCTION (THIS FIXES YOUR ERROR)
+def get_categories():
+    return CATEGORIES
+
+
 def get_icon(category: str) -> str:
     return CATEGORY_ICONS.get(category, "💳")
 
+
 def get_color(category: str) -> str:
     return CATEGORY_COLORS.get(category, "#8b93a7")
+
 
 def get_bg(category: str) -> str:
     return CATEGORY_BG.get(category, "rgba(139,147,167,0.12)")
