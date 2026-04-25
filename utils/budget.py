@@ -1,19 +1,31 @@
-from utils.supabase_client import supabase
+from utils.supabase_client import get_authed_client
+
 
 def get_budget(user_id):
-    res = supabase.table("user_budget").select("*").eq("user_id", user_id).execute()
+    client = get_authed_client()
+
+    res = (
+        client.table("user_budget")
+        .select("*")
+        .eq("user_id", user_id)
+        .execute()
+    )
+
     return res.data[0] if res.data else None
 
+
 def save_budget(user_id, income, limit):
+    client = get_authed_client()
+
     existing = get_budget(user_id)
 
     if existing:
-        supabase.table("user_budget").update({
+        client.table("user_budget").update({
             "monthly_income": income,
             "budget_limit": limit
         }).eq("user_id", user_id).execute()
     else:
-        supabase.table("user_budget").insert({
+        client.table("user_budget").insert({
             "user_id": user_id,
             "monthly_income": income,
             "budget_limit": limit
